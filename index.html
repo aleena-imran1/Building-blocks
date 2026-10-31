@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#120a33">
+<title>Star Catcher</title>
+<style>
+/* =====================================================================
+   STAR CATCHER — styles
+   ===================================================================== */
+:root {
+  --bg1: #120a33;
+  --bg2: #0b1a3a;
+  --panel: rgba(255, 255, 255, 0.07);
+  --panel-border: rgba(255, 255, 255, 0.14);
+  --text: #f1f2ff;
+  --muted: #a9acd6;
+  --accent: #ffd54a;
+  --accent2: #6df0ff;
+  --danger: #ff4d6d;
+  --good: #5dffa0;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 0%, #2a1668 0%, var(--bg1) 45%, var(--bg2) 100%);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  user-select: none; -webkit-user-select: none;
+}
+#app {
+  height: 100vh; height: 100dvh; width: 100%;
+  position: relative;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Twinkling decorative background */
+.twinkle {
+  position: absolute; inset: 0; pointer-events: none; opacity: .7;
+  background-image:
+    radial-gradient(2px 2px at 12% 18%, #fff 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 78% 12%, #cfe 50%, transparent 52%),
+    radial-gradient(2px 2px at 36% 72%, #ffe9a8 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 88% 64%, #fff 50%, transparent 52%),
+    radial-gradient(2px 2px at 58% 38%, #bdf 50%, transparent 52%),
+    radial-gradient(1.5px 1.5px at 22% 90%, #fff 50%, transparent 52%);
+  animation: twinkle 3.2s ease-in-out infinite alternate;
+}
+@keyframes twinkle { from { opacity: .25; } to { opacity: .9; } }
+
+/* Screens */
+.screen { position: absolute; inset: 0; display: none; }
+.screen.active { display: flex; }
+#app > .screen { padding: inherit; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  appearance: none; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--text);
+  font: inherit; font-weight: 700; letter-spacing: .3px;
+  padding: 12px 22px; border-radius: 14px; cursor: pointer;
+  transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+}
+.btn:hover { background: rgba(255,255,255,.14); transform: translateY(-1px); }
+.btn:active { transform: translateY(1px) scale(.98); }
+.btn:focus-visible { outline: 3px solid var(--accent2); outline-offset: 2px; }
+.btn.primary {
+  background: linear-gradient(135deg, #ffd54a, #ff9a3c);
+  color: #2b1600; border: none; font-size: 1.15rem; padding: 14px 34px;
+  box-shadow: 0 8px 28px rgba(255, 170, 60, .4);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.btn.primary:hover { background: linear-gradient(135deg, #ffe27a, #ffad5c); }
+@keyframes pulse { 0%,100% { box-shadow: 0 8px 28px rgba(255,170,60,.35); } 50% { box-shadow: 0 8px 40px rgba(255,170,60,.7); } }
+.icon-btn { padding: 8px 12px; font-size: 1.1rem; line-height: 1; min-width: 44px; min-height: 44px; }
+
+/* ---------- Menu screen ---------- */
+#menu { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.menu-inner {
+  margin: auto; width: min(560px, 100%); padding: 24px 18px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center;
+  position: relative;
+}
+.logo {
+  font-size: clamp(2.4rem, 9vw, 4rem); font-weight: 900; margin: 0; line-height: 1;
+  background: linear-gradient(90deg, #ffd54a, #ff7eb6, #6df0ff, #ffd54a);
+  background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: shimmer 6s linear infinite;
+  filter: drop-shadow(0 4px 18px rgba(255, 190, 80, .35));
+}
+@keyframes shimmer { to { background-position: 300% 0; } }
+.tagline { margin: 0; color: var(--muted); }
+.logo-star { font-size: 3rem; animation: float 2.4s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-10px) rotate(6deg); } }
+.card {
+  width: 100%; text-align: left; background: var(--panel); border: 1px solid var(--panel-border);
+  border-radius: 18px; padding: 16px 18px; backdrop-filter: blur(6px);
+}
+.card h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--accent); }
+.card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: .95rem; }
+.card li { display: flex; gap: 10px; align-items: flex-start; }
+.card li .e { width: 1.6em; text-align: center; flex: none; }
+kbd {
+  background: rgba(255,255,255,.14); border: 1px solid var(--panel-border);
+  border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; font-size: .85em;
+}
+.menu-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.best { color: var(--muted); font-size: .95rem; }
+.best b { color: var(--accent); }
+
+/* ---------- Game screen ---------- */
+#game { flex-direction: column; }
+.topbar {
+  display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center;
+  padding: 8px 10px 0; flex: none;
+}
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.stat {
+  background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px;
+  padding: 4px 8px; display: flex; flex-direction: column; align-items: center; min-width: 0;
+}
+.stat .k { font-size: .62rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.stat .v { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat .v.lives { font-size: .95rem; letter-spacing: -1px; }
+.lives .on { color: var(--danger); }
+.lives .off { color: rgba(255,255,255,.25); }
+.stat .v.low { color: var(--danger); animation: blink .6s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .35; } }
+.bump { animation: bump .25s ease; }
+@keyframes bump { 50% { transform: scale(1.25); color: var(--accent); } }
+.actions { display: flex; gap: 6px; }
+.progress-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; }
+.progress {
+  flex: 1; height: 12px; border-radius: 999px; overflow: hidden;
+  background: rgba(255,255,255,.1); border: 1px solid var(--panel-border);
+}
+#progFill {
+  height: 100%; width: 0%; border-radius: 999px;
+  background: linear-gradient(90deg, #6df0ff, #5dffa0, #ffd54a);
+  transition: width .25s ease;
+}
+.plabel { font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 78px; text-align: right; }
+
+#stageWrap {
+  flex: 1 1 0; min-height: 0; min-width: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; padding: 8px;
+}
+#stage {
+  position: relative; overflow: hidden; border-radius: 18px;
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 10px 50px rgba(0,0,0,.55), 0 0 40px rgba(120, 90, 255, .25);
+  background: #0b1030;
+}
+#canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: none; }
+
+/* Overlays (pause / game over) */
+.overlay {
+  position: absolute; inset: 0; display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 16px;
+  background: rgba(8, 10, 32, .8); backdrop-filter: blur(5px);
+}
+.overlay.show { display: flex; animation: fade .25s ease; }
+@keyframes fade { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+.overlay h2 { margin: 0; font-size: clamp(1.8rem, 7vw, 2.6rem); }
+.overlay .big { font-size: clamp(2.4rem, 11vw, 3.6rem); font-weight: 900; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
+.overlay p { margin: 0; color: var(--muted); }
+.overlay .btns { display: flex; flex-direction: column; gap: 10px; width: min(260px, 100%); margin-top: 8px; }
+.badge {
+  background: linear-gradient(135deg, #ff7eb6, #ffd54a); color: #2b1600; font-weight: 800;
+  padding: 4px 12px; border-radius: 999px; font-size: .85rem; animation: pulse 1.2s infinite;
+}
+.badge[hidden] { display: none; }
+.results { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: min(300px, 100%); }
+.results div { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 8px; }
+.results span { display: block; font-size: .65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.results b { font-size: 1.2rem; }
+
+/* Landscape phones: HUD moves to a side column */
+@media (orientation: landscape) and (max-height: 520px) {
+  #game { flex-direction: row; }
+  .topbar { width: 190px; grid-template-columns: 1fr; align-content: start; padding: 8px 0 8px 10px; overflow-y: auto; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .actions { justify-content: flex-start; }
+  .menu-inner { padding: 12px; gap: 10px; }
+  .logo-star { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .twinkle, .logo, .logo-star, .btn.primary, .badge { animation: none; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="twinkle"></div>
+
+  <!-- ===================== WELCOME SCREEN ===================== -->
+  <section id="menu" class="screen active" aria-label="Welcome">
+    <div class="menu-inner">
+      <div class="logo-star" aria-hidden="true">⭐</div>
+      <h1 class="logo">STAR CATCHER</h1>
+      <p class="tagline">Catch the falling stars. Dodge the bombs. Beat the clock.</p>
+
+      <div class="card">
+        <h2>How to play</h2>
+        <ul>
+          <li><span class="e">🕹️</span><span><b>Move</b> your catcher with <kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd>, or move the mouse / drag your finger.</span></li>
+          <li><span class="e">⭐</span><span><b>Star</b> +10 points &nbsp;·&nbsp; <span class="e">💎</span><b>Gem</b> +30 points</span></li>
+          <li><span class="e">❤️</span><span><b>Heart</b> restores a life (max 5) &nbsp;·&nbsp; <span class="e">⏱️</span><b>Clock</b> adds 6 seconds</span></li>
+          <li><span class="e">💣</span><span><b>Bombs</b> cost a life. Lose all 3 lives and it's game over!</span></li>
+          <li><span class="e">🔥</span><span><b>Combo:</b> every 5 catches in a row raises your multiplier (up to ×5). Missing a star resets it.</span></li>
+          <li><span class="e">🎯</span><span><b>Fill the progress bar</b> before time runs out to reach the next level. Leftover seconds become bonus points.</span></li>
+          <li><span class="e">⏸️</span><span>Press <kbd>P</kbd> or <kbd>Esc</kbd> (or the pause button) to pause.</span></li>
+        </ul>
+      </div>
+
+      <button id="btnStart" class="btn primary">▶ Start Game</button>
+      <div class="menu-row">
+        <button id="soundMenu" class="btn">🔊 Sound: On</button>
+      </div>
+      <div class="best">Best score: <b id="bestMenu">0</b></div>
+    </div>
+  </section>
+
+  <!-- ===================== GAME SCREEN ===================== -->
+  <section id="game" class="screen" aria-label="Game">
+    <div class="topbar">
+      <div class="stats">
+        <div class="stat"><span class="k">Score</span><span class="v" id="hudScore">0</span></div>
+        <div class="stat"><span class="k">Level</span><span class="v" id="hudLevel">1</span></div>
+        <div class="stat"><span class="k">Time</span><span class="v" id="hudTime">0s</span></div>
+        <div class="stat"><span class="k">Lives</span><span class="v lives" id="hudLives"></span></div>
+      </div>
+      <div class="actions">
+        <button id="btnPause" class="btn icon-btn" aria-label="Pause">⏸</button>
+        <button id="soundHud" class="btn icon-btn" aria-label="Toggle sound">🔊</button>
+      </div>
+      <div class="progress-row">
+        <div class="progress" role="progressbar" aria-label="Level progress"><div id="progFill"></div></div>
+        <div class="plabel" id="progLabel">0 / 0</div>
+      </div>
+    </div>
+
+    <div id="stageWrap">
+      <div id="stage">
+        <canvas id="canvas"></canvas>
+
+        <!-- Pause overlay -->
+        <div id="pauseOverlay" class="overlay" role="dialog" aria-label="Paused">
+          <h2>⏸ Paused</h2>
+          <p>Take a breather — the stars will wait.</p>
+          <div class="btns">
+            <button id="btnResume" class="btn primary">▶ Resume</button>
+            <button id="btnRestart" class="btn">↻ Restart</button>
+            <button id="btnQuit" class="btn">⌂ Main menu</button>
+          </div>
+        </div>
+
+        <!-- Game over overlay -->
+        <div id="overOverlay" class="overlay" role="dialog" aria-label="Game over">
+          <h2>Game Over</h2>
+          <p id="goReason">Out of lives!</p>
+          <div class="big" id="goScore">0</div>
+          <span class="badge" id="goNew" hidden>🏆 New best score!</span>
+          <div class="results">
+            <div><span>Level reached</span><b id="goLevel">1</b></div>
+            <div><span>Best score</span><b id="goBest">0</b></div>
+            <div><span>Items caught</span><b id="goCaught">0</b></div>
+            <div><span>Best combo</span><b id="goCombo">0</b></div>
+          </div>
+          <div class="btns">
+            <button id="btnAgain" class="btn primary">↻ Play Again</button>
+            <button id="btnMenu" class="btn">⌂ Main menu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* =====================================================================
+   STAR CATCHER — game logic (vanilla JS, no dependencies)
+   ===================================================================== */
+(() => {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+     1. Constants, DOM references, helpers
+  ------------------------------------------------------------------ */
+  const W = 480, H = 720;               // logical game resolution (2:3 portrait)
+  const DPR = 2;                        // internal canvas supersampling
+  const MAX_LIVES = 5, START_LIVES = 3;
+  const STORAGE_BEST = 'starCatcher.best';
+  const STORAGE_MUTE = 'starCatcher.muted';
+
+  const $ = (id) => document.getElementById(id);
+  const canvas = $('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  ctx.scale(DPR, DPR);
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  // localStorage can throw (private mode, file:// restrictions) — always guard it.
+  function store(key, value) {
+    try {
+      if (value === undefined) return localStorage.getItem(key);
+      localStorage.setItem(key, String(value));
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  /* ------------------------------------------------------------------
+     2. Game state
+  ------------------------------------------------------------------ */
+  const game = {
+    state: 'menu',      // menu | ready | playing | levelup | over
+    paused: false,
+    score: 0, level: 1, lives: START_LIVES,
+    time: 0, levelTime: 0,
+    levelScore: 0, target: 0,
+    combo: 0, maxCombo: 0, caught: 0,
+    spawnTimer: 0, readyTimer: 0, levelTimer: 0,
+    lastTick: -1, lastBonus: 0,
+    shake: 0, flash: 0, best: parseInt(store(STORAGE_BEST), 10) || 0
+  };
+
+  const player = { x: W / 2, y: H - 86, w: 120, h: 20, targetX: W / 2, bump: 0 };
+  const keys = { left: false, right: false };
+
+  let items = [];       // falling objects
+  let particles = [];   // sparkle bursts
+  let floaters = [];    // floating "+10" texts
+
+  // Parallax background stars
+  const bgStars = Array.from({ length: 70 }, () => ({
+    x: rand(0, W), y: rand(0, H), r: rand(0.5, 2), s: rand(8, 40), a: rand(0.3, 1)
+  }));
+
+  /* ------------------------------------------------------------------
+     3. Difficulty curve (all driven by level number)
+  ------------------------------------------------------------------ */
+  const levelTimeFor   = (L) => Math.min(33 + (L - 1) * 2, 60);          // seconds
+  const targetFor      = (L) => 120 + (L - 1) * 70;                      // points to advance
+  const fallSpeedFor   = (L) => Math.min(130 + L * 24, 430);             // px / s
+  const spawnDelayFor  = (L) => Math.max(0.30, 0.95 - L * 0.07);         // seconds
+  const bombChanceFor  = (L) => Math.min(0.30, 0.10 + L * 0.02);
+  const paddleWidthFor = (L) => Math.max(76, 122 - (L - 1) * 4);
+  const multiplier     = () => Math.min(5, 1 + Math.floor(game.combo / 5));
+
+  /* ------------------------------------------------------------------
+     4. Audio (WebAudio synthesised — no files needed)
+  ------------------------------------------------------------------ */
+  let audioCtx = null;
+  let muted = store(STORAGE_MUTE) === '1';
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      } catch (e) { audioCtx = null; }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function tone(freq, dur, type = 'sine', vol = 0.15, slideTo = null, delay = 0) {
+    if (muted || !audioCtx) return;
+    const t = audioCtx.currentTime + delay;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + dur + 0.03);
+  }
+
+  function noise(dur, vol = 0.25) {
+    if (muted || !audioCtx) return;
+    const len = Math.floor(audioCtx.sampleRate * dur);
+    const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const src = audioCtx.createBufferSource();
+    const filter = audioCtx.createBiquadFilter();
+    const gain = audioCtx.createGain();
+    filter.type = 'lowpass'; filter.frequency.value = 900;
+    gain.gain.value = vol;
+    src.buffer = buf;
+    src.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+    src.start();
+  }
+
+  const sfx = {
+    star()  { tone(620 + Math.min(game.combo, 20) * 28, 0.12, 'triangle', 0.16, 1000 + Math.min(game.combo, 20) * 28); },
+    gem()   { tone(880, 0.1, 'sine', 0.16); tone(1320, 0.18, 'sine', 0.16, null, 0.07); },
+    bomb()  { noise(0.4, 0.35); tone(160, 0.35, 'sawtooth', 0.2, 40); },
+    heart() { tone(523, 0.12, 'sine', 0.18); tone(659, 0.12, 'sine', 0.18, null, 0.1); tone(784, 0.22, 'sine', 0.18, null, 0.2); },
+    clock() { tone(1000, 0.06, 'square', 0.08); tone(1000, 0.06, 'square', 0.08, null, 0.1); tone(1400, 0.14, 'square', 0.08, null, 0.2); },
+    combo() { tone(700, 0.1, 'square', 0.09); tone(900, 0.1, 'square', 0.09, null, 0.08); tone(1200, 0.16, 'square', 0.09, null, 0.16); },
+    tick()  { tone(660, 0.08, 'square', 0.07); },
+    go()    { tone(990, 0.3, 'square', 0.09); },
+    click() { tone(500, 0.06, 'triangle', 0.1); },
+    levelUp() { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, 'triangle', 0.18, null, i * 0.12)); },
+    over()  { [440, 392, 330, 262].forEach((f, i) => tone(f, 0.35, 'sawtooth', 0.12, f * 0.97, i * 0.2)); }
+  };
+
+  /* ------------------------------------------------------------------
+     5. Particles & floating text
+  ------------------------------------------------------------------ */
+  function burst(x, y, color, n = 14, speed = 220) {
+    for (let i = 0; i < n; i++) {
+      const a = rand(0, Math.PI * 2), s = rand(speed * 0.3, speed);
+      particles.push({
+        x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 40,
+        life: rand(0.35, 0.8), max: 0.8, color, size: rand(2, 4.5)
+      });
+    }
+  }
+  function floater(x, y, text, color = '#fff') {
+    floaters.push({ x, y, text, color, life: 1 });
+  }
+
+  /* ------------------------------------------------------------------
+     6. Level / game flow
+  ------------------------------------------------------------------ */
+  function startGame() {
+    ensureAudio();
+    game.score = 0; game.lives = START_LIVES;
+    game.combo = 0; game.maxCombo = 0; game.caught = 0;
+    game.shake = 0; game.flash = 0; game.paused = false;
+    particles = []; floaters = [];
+    player.x = player.targetX = W / 2;
+    hideOverlay('pauseOverlay'); hideOverlay('overOverlay');
+    showScreen('game');
+    resize();
+    startLevel(1);
+  }
+
+  function startLevel(n) {
+    game.level = n;
+    game.levelTime = levelTimeFor(n);
+    game.time = game.levelTime;
+    game.levelScore = 0;
+    game.target = targetFor(n);
+    game.spawnTimer = 0.4;
+    player.w = paddleWidthFor(n);
+    items = [];
+    game.state = 'ready';
+    game.readyTimer = n === 1 ? 3.2 : 2.4;
+    game.lastTick = -1;
+  }
+
+  function completeLevel() {
+    game.lastBonus = Math.floor(game.time) * 5;
+    game.score += game.lastBonus;
+    items.forEach((it) => burst(it.x, it.y, '#ffd54a', 6, 160));
+    items = [];
+    game.state = 'levelup';
+    game.levelTimer = 2.4;
+    sfx.levelUp();
+  }
+
+  function gameOver(reason) {
+    if (game.state === 'over') return;
+    game.state = 'over';
+    game.paused = false;
+    keys.left = keys.right = false;
+    const isNew = game.score > game.best;
+    if (isNew) { game.best = game.score; store(STORAGE_BEST, game.best); }
+    $('goReason').textContent = reason;
+    $('goScore').textContent = game.score;
+    $('goLevel').textContent = game.level;
+    $('goBest').textContent = game.best;
+    $('goCaught').textContent = game.caught;
+    $('goCombo').textContent = game.maxCombo;
+    $('goNew').hidden = !isNew;
+    sfx.over();
+    showOverlay('overOverlay');
+    $('btnAgain').focus({ preventScroll: true });
+  }
+
+  function toMenu() {
+    game.state = 'menu';
+    game.paused = false;
+    hideOverlay('pauseOverlay'); hideOverlay('overOverlay');
+    $('bestMenu').textContent = game.best;
+    showScreen('menu');
+    $('btnStart').focus({ preventScroll: true });
+  }
+
+  /* Pause handling — only allowed while a round is in progress */
+  const canPause = () => ['ready', 'playing', 'levelup'].includes(game.state);
+
+  function pauseGame() {
+    if (!canPause() || game.paused) return;
+    game.paused = true;
+    keys.left = keys.right = false;
+    showOverlay('pauseOverlay');
+    $('btnResume').focus({ preventScroll: true });
+  }
+  function resumeGame() {
+    if (!game.paused) return;
+    game.paused = false;
+    hideOverlay('pauseOverlay');
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  }
+  function togglePause() { game.paused ? resumeGame() : pauseGame(); }
+
+  /* ------------------------------------------------------------------
+     7. Spawning and catching
+  ------------------------------------------------------------------ */
+  const ITEM_RADIUS = { star: 16, gem: 15, bomb: 17, heart: 16, clock: 16 };
+
+  function spawnItem() {
+    const L = game.level;
+    const bombP = bombChanceFor(L), gemP = 0.08, heartP = 0.035, clockP = 0.04;
+    const r = Math.random();
+    let type = 'star';
+    if (r < bombP) type = 'bomb';
+    else if (r < bombP + gemP) type = 'gem';
+    else if (r < bombP + gemP + heartP) type = game.lives < MAX_LIVES ? 'heart' : 'star';
+    else if (r < bombP + gemP + heartP + clockP) type = 'clock';
+
+    const rad = ITEM_RADIUS[type];
+    items.push({
+      type, r: rad,
+      x: rand(rad + 12, W - rad - 12),
+      y: -rad - 4,
+      vy: fallSpeedFor(L) * rand(0.85, 1.2),
+      rot: rand(0, Math.PI * 2),
+      vr: rand(-2.5, 2.5),
+      t: 0
+    });
+  }
+
+  function addScore(base, it) {
+    const mult = multiplier();
+    const pts = base * mult;
+    game.score += pts;
+    game.levelScore += pts;
+    floater(it.x, it.y - 10, '+' + pts, mult > 1 ? '#ffb347' : '#fff');
+  }
+
+  function registerCatch(it) {
+    game.caught++;
+    player.bump = 1;
+    switch (it.type) {
+      case 'star':
+      case 'gem': {
+        const before = multiplier();
+        game.combo++;
+        game.maxCombo = Math.max(game.maxCombo, game.combo);
+        addScore(it.type === 'star' ? 10 : 30, it);
+        if (it.type === 'star') sfx.star(); else sfx.gem();
+        burst(it.x, it.y, it.type === 'star' ? '#ffd54a' : '#6df0ff', it.type === 'star' ? 10 : 16);
+        if (multiplier() > before) {
+          floater(W / 2, 150, 'COMBO ×' + multiplier() + '!', '#ff7eb6');
+          sfx.combo();
+        }
+        break;
+      }
+      case 'heart':
+        game.lives = Math.min(MAX_LIVES, game.lives + 1);
+        floater(it.x, it.y - 10, '+1 ♥', '#ff7eb6');
+        burst(it.x, it.y, '#ff7eb6', 14);
+        sfx.heart();
+        break;
+      case 'clock':
+        game.time = Math.min(99, game.time + 6);
+        floater(it.x, it.y - 10, '+6s', '#5dffa0');
+        burst(it.x, it.y, '#5dffa0', 12);
+        sfx.clock();
+        break;
+      case 'bomb':
+        game.lives--;
+        game.combo = 0;
+        game.shake = 0.5;
+        game.flash = 1;
+        burst(it.x, it.y, '#ff4d6d', 28, 320);
+        burst(it.x, it.y, '#ffa94d', 14, 220);
+        floater(it.x, it.y - 10, '-1 ♥', '#ff4d6d');
+        sfx.bomb();
+        if (game.lives <= 0) gameOver('Out of lives!');
+        break;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     8. Update loop
+  ------------------------------------------------------------------ */
+  function movePlayer(dt) {
+    const dir = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+    const half = player.w / 2;
+    if (dir !== 0) {
+      player.x += dir * 560 * dt;
+      player.targetX = player.x;            // keep pointer target in sync with keyboard
+    } else {
+      player.x += (player.targetX - player.x) * Math.min(1, dt * 22);
+    }
+    player.x = clamp(player.x, half, W - half);
+    player.targetX = clamp(player.targetX, half, W - half);
+    player.bump = Math.max(0, player.bump - dt * 4);
+  }
+
+  function updateItems(dt) {
+    const top = player.y;
+    const left = player.x - player.w / 2 - 4;
+    const right = player.x + player.w / 2 + 4;
+
+    for (const it of items) {
+      it.y += it.vy * dt;
+      it.rot += it.vr * dt;
+      it.t += dt;
+
+      // Caught: item reaches the catcher's rim while horizontally inside it
+      if (it.y + it.r * 0.5 >= top && it.y <= top + player.h * 0.7 && it.x >= left && it.x <= right) {
+        it.dead = true;
+        registerCatch(it);
+        if (game.state !== 'playing') break;   // bomb killed us
+        continue;
+      }
+      // Fell off the bottom
+      if (it.y - it.r > H) {
+        it.dead = true;
+        if (it.type === 'star' && game.combo > 0) {   // missing a star breaks the combo
+          game.combo = 0;
+          floater(clamp(it.x, 40, W - 40), H - 120, 'combo lost', '#a9acd6');
+        }
+      }
+    }
+    items = items.filter((it) => !it.dead);
+  }
+
+  function update(dt) {
+    if (game.state === 'menu') return;
+
+    // Background drift, effects (run in every non-menu state)
+    for (const s of bgStars) {
+      s.y += s.s * dt;
+      if (s.y > H) { s.y = -2; s.x = rand(0, W); }
+    }
+    for (const p of particles) {
+      p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 420 * dt; p.life -= dt;
+    }
+    particles = particles.filter((p) => p.life > 0);
+    for (const f of floaters) { f.y -= 42 * dt; f.life -= dt * 0.9; }
+    floaters = floaters.filter((f) => f.life > 0);
+    game.shake = Math.max(0, game.shake - dt);
+    game.flash = Math.max(0, game.flash - dt * 2.5);
+
+    switch (game.state) {
+      case 'ready': {
+        movePlayer(dt);
+        game.readyTimer -= dt;
+        const n = Math.ceil(game.readyTimer);
+        if (n !== game.lastTick && n > 0) { game.lastTick = n; sfx.tick(); }
+        if (game.readyTimer <= 0) { game.state = 'playing'; sfx.go(); }
+        break;
+      }
+      case 'playing': {
+        game.time -= dt;
+        movePlayer(dt);
+
+        game.spawnTimer -= dt;
+        if (game.spawnTimer <= 0) {
+          spawnItem();
+          game.spawnTimer = spawnDelayFor(game.level) * rand(0.7, 1.3);
+        }
+        updateItems(dt);
+        if (game.state !== 'playing') return;   // died to a bomb
+
+        if (game.levelScore >= game.target) { completeLevel(); return; }
+        if (game.time <= 0) { game.time = 0; gameOver("Time's up!"); }
+        break;
+      }
+      case 'levelup': {
+        movePlayer(dt);
+        game.levelTimer -= dt;
+        if (game.levelTimer <= 0) startLevel(game.level + 1);
+        break;
+      }
+      case 'over':
+        break;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     9. Rendering
+  ------------------------------------------------------------------ */
+  const bgGradient = (() => {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#1d1050');
+    g.addColorStop(0.6, '#10153f');
+    g.addColorStop(1, '#0a1a38');
+    return g;
+  })();
+
+  function starPath(r) {
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const rad = i % 2 === 0 ? r : r * 0.45;
+      const a = -Math.PI / 2 + i * Math.PI / 5;
+      const px = Math.cos(a) * rad, py = Math.sin(a) * rad;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  function drawItem(it) {
+    const r = it.r;
+    ctx.save();
+    ctx.translate(it.x, it.y);
+    switch (it.type) {
+      case 'star':
+        ctx.rotate(it.rot);
+        ctx.shadowColor = '#ffd54a'; ctx.shadowBlur = 14;
+        ctx.fillStyle = '#ffd54a'; starPath(r); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#fff3b0'; starPath(r * 0.5); ctx.fill();
+        break;
+      case 'gem': {
+        ctx.rotate(Math.sin(it.rot) * 0.25);
+        ctx.shadowColor = '#6df0ff'; ctx.shadowBlur = 16;
+        const g = ctx.createLinearGradient(-r, -r, r, r);
+        g.addColorStop(0, '#d9fbff'); g.addColorStop(0.5, '#4fd8ff'); g.addColorStop(1, '#2a7bff');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(0, -r); ctx.lineTo(r * 0.85, -r * 0.1); ctx.lineTo(0, r); ctx.lineTo(-r * 0.85, -r * 0.1);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.85, -r * 0.1); ctx.lineTo(r * 0.85, -r * 0.1);
+        ctx.moveTo(0, -r); ctx.lineTo(-r * 0.3, -r * 0.1); ctx.lineTo(0, r);
+        ctx.moveTo(0, -r); ctx.lineTo(r * 0.3, -r * 0.1); ctx.lineTo(0, r);
+        ctx.stroke();
+        break;
+      }
+      case 'bomb': {
+        const pulse = 0.5 + 0.5 * Math.sin(it.t * 10);
+        ctx.shadowColor = '#ff4d6d'; ctx.shadowBlur = 10 + pulse * 12;
+        ctx.fillStyle = '#1b1b2a';
+        ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.arc(0, 3, r * 0.88, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.shadowBlur = 0;
+        // fuse
+        ctx.strokeStyle = '#c9a46b'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(r * 0.45, -r * 0.55); ctx.quadraticCurveTo(r * 0.8, -r * 0.9, r * 0.6, -r * 1.2); ctx.stroke();
+        // spark
+        ctx.fillStyle = pulse > 0.5 ? '#ffe27a' : '#ff9a3c';
+        ctx.beginPath(); ctx.arc(r * 0.6, -r * 1.25, 3 + pulse * 2.5, 0, Math.PI * 2); ctx.fill();
+        // angry "X" eyes (shape cue, not just colour)
+        ctx.strokeStyle = '#ff4d6d'; ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.5, -r * 0.15); ctx.lineTo(-r * 0.15, r * 0.2);
+        ctx.moveTo(-r * 0.15, -r * 0.15); ctx.lineTo(-r * 0.5, r * 0.2);
+        ctx.moveTo(r * 0.15, -r * 0.15); ctx.lineTo(r * 0.5, r * 0.2);
+        ctx.moveTo(r * 0.5, -r * 0.15); ctx.lineTo(r * 0.15, r * 0.2);
+        ctx.stroke();
+        break;
+      }
+      case 'heart': {
+        const beat = 1 + Math.sin(it.t * 8) * 0.07;
+        ctx.scale(beat, beat);
+        ctx.shadowColor = '#ff7eb6'; ctx.shadowBlur = 14;
+        ctx.fillStyle = '#ff5fa2';
+        ctx.beginPath();
+        ctx.moveTo(0, r * 0.9);
+        ctx.bezierCurveTo(-r * 1.4, r * 0.1, -r * 0.9, -r * 1.0, 0, -r * 0.35);
+        ctx.bezierCurveTo(r * 0.9, -r * 1.0, r * 1.4, r * 0.1, 0, r * 0.9);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(255,255,255,.55)';
+        ctx.beginPath(); ctx.arc(-r * 0.45, -r * 0.2, r * 0.18, 0, Math.PI * 2); ctx.fill();
+        break;
+      }
+      case 'clock': {
+        ctx.shadowColor = '#5dffa0'; ctx.shadowBlur = 14;
+        ctx.fillStyle = '#2fd486';
+        ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#f4fff9';
+        ctx.beginPath(); ctx.arc(0, 0, r * 0.78, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#13613d'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(Math.cos(it.t * 6) * r * 0.55, Math.sin(it.t * 6) * r * 0.55);
+        ctx.moveTo(0, 0); ctx.lineTo(0, -r * 0.4);
+        ctx.stroke();
+        break;
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawPlayer() {
+    const { x, y, w, h } = player;
+    const sy = 1 + player.bump * 0.18;   // little squash when catching
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(1, sy);
+    const g = ctx.createLinearGradient(0, 0, 0, h + 14);
+    g.addColorStop(0, '#9cf3ff'); g.addColorStop(1, '#3a6bff');
+    ctx.shadowColor = '#6df0ff'; ctx.shadowBlur = 18;
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(-w / 2, 0);
+    ctx.lineTo(w / 2, 0);
+    ctx.lineTo(w * 0.34, h + 8);
+    ctx.quadraticCurveTo(0, h + 16, -w * 0.34, h + 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // rim highlight
+    ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-w / 2 + 2, 1); ctx.lineTo(w / 2 - 2, 1); ctx.stroke();
+    ctx.restore();
+  }
+
+  function centerText(text, y, size, color, weight = '900') {
+    ctx.font = weight + ' ' + size + 'px system-ui, -apple-system, "Segoe UI", sans-serif';
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, W / 2, y);
+  }
+
+  function draw() {
+    ctx.save();
+    if (game.shake > 0) {
+      const s = game.shake * 18;
+      ctx.translate(rand(-s, s) / 2, rand(-s, s) / 2);
+    }
+    // Background
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(-20, -20, W + 40, H + 40);
+    for (const s of bgStars) {
+      ctx.globalAlpha = s.a * 0.8;
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Floor glow line under the catcher
+    ctx.fillStyle = 'rgba(109,240,255,.08)';
+    ctx.fillRect(0, player.y + player.h + 22, W, H);
+
+    // World
+    items.forEach(drawItem);
+    drawPlayer();
+
+    // Particles
+    for (const p of particles) {
+      ctx.globalAlpha = clamp(p.life / p.max, 0, 1);
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Floating texts
+    for (const f of floaters) {
+      ctx.globalAlpha = clamp(f.life, 0, 1);
+      centerTextAt(f.text, f.x, f.y, 22, f.color);
+    }
+    ctx.globalAlpha = 1;
+
+    // Combo indicator
+    if (multiplier() > 1 && (game.state === 'playing')) {
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      ctx.font = '900 20px system-ui, sans-serif';
+      ctx.fillStyle = '#ff7eb6';
+      ctx.fillText('×' + multiplier() + ' COMBO', 14, 12);
+      ctx.font = '600 13px system-ui, sans-serif';
+      ctx.fillStyle = '#a9acd6';
+      ctx.fillText('streak ' + game.combo, 14, 36);
+    }
+
+    // State banners
+    if (game.state === 'ready') {
+      ctx.fillStyle = 'rgba(8,10,32,.45)'; ctx.fillRect(0, 0, W, H);
+      centerText('LEVEL ' + game.level, H * 0.28, 46, '#ffd54a');
+      centerText('Score ' + game.target + ' points in ' + Math.round(game.levelTime) + 's', H * 0.28 + 44, 18, '#d6d8ff', '600');
+      centerText(String(Math.max(1, Math.ceil(game.readyTimer))), H * 0.5, 120, '#ffffff');
+    } else if (game.state === 'levelup') {
+      ctx.fillStyle = 'rgba(8,10,32,.5)'; ctx.fillRect(0, 0, W, H);
+      centerText('LEVEL COMPLETE!', H * 0.36, 40, '#5dffa0');
+      centerText('Time bonus  +' + game.lastBonus, H * 0.36 + 50, 24, '#ffd54a', '800');
+      centerText('Get ready for level ' + (game.level + 1) + '…', H * 0.36 + 88, 17, '#d6d8ff', '600');
+    }
+
+    // Bomb flash
+    if (game.flash > 0) {
+      ctx.fillStyle = 'rgba(255,60,80,' + (game.flash * 0.35).toFixed(3) + ')';
+      ctx.fillRect(-20, -20, W + 40, H + 40);
+    }
+    ctx.restore();
+  }
+
+  function centerTextAt(text, x, y, size, color) {
+    ctx.font = '900 ' + size + 'px system-ui, -apple-system, "Segoe UI", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.45)';
+    ctx.strokeText(text, x, y);
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+  }
+
+  /* ------------------------------------------------------------------
+     10. HUD (DOM) — only touches the DOM when a value actually changes
+  ------------------------------------------------------------------ */
+  const hud = {
+    score: $('hudScore'), level: $('hudLevel'), time: $('hudTime'),
+    lives: $('hudLives'), fill: $('progFill'), label: $('progLabel'),
+    cache: {}
+  };
+
+  function setHud(key, value, apply) {
+    if (hud.cache[key] === value) return;
+    hud.cache[key] = value;
+    apply(value);
+  }
+
+  function updateHUD() {
+    setHud('score', game.score, (v) => {
+      hud.score.textContent = v;
+      hud.score.classList.remove('bump'); void hud.score.offsetWidth; hud.score.classList.add('bump');
+    });
+    setHud('level', game.level, (v) => { hud.level.textContent = v; });
+    const secs = Math.max(0, Math.ceil(game.time));
+    setHud('time', secs, (v) => {
+      hud.time.textContent = v + 's';
+      hud.time.classList.toggle('low', v <= 10 && game.state === 'playing');
+    });
+    setHud('lives', game.lives, (v) => {
+      let html = '';
+      for (let i = 0; i < MAX_LIVES; i++) html += i < v ? '<span class="on">♥</span>' : '<span class="off">♥</span>';
+      hud.lives.innerHTML = html;
+    });
+    const pct = game.target ? Math.min(100, (game.levelScore / game.target) * 100) : 0;
+    setHud('pct', Math.round(pct), (v) => { hud.fill.style.width = v + '%'; });
+    setHud('plabel', Math.min(game.levelScore, game.target) + ' / ' + game.target, (v) => { hud.label.textContent = v; });
+  }
+
+  /* ------------------------------------------------------------------
+     11. Screens, overlays, sizing
+  ------------------------------------------------------------------ */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('active', s.id === id));
+  }
+  function showOverlay(id) { $(id).classList.add('show'); }
+  function hideOverlay(id) { $(id).classList.remove('show'); }
+
+  // Fit the 2:3 stage into whatever space the layout leaves (portrait, landscape, phone, desktop).
+  function resize() {
+    const wrap = $('stageWrap'), stage = $('stage');
+    stage.style.width = '0px'; stage.style.height = '0px';   // measure without the stage affecting layout
+    const availW = wrap.clientWidth - 16;
+    const availH = wrap.clientHeight - 16;
+    if (availW <= 0 || availH <= 0) return;
+    let w = availW, h = availH;
+    if (w / h > W / H) w = h * (W / H); else h = w * (H / W);
+    stage.style.width = Math.floor(w) + 'px';
+    stage.style.height = Math.floor(h) + 'px';
+  }
+
+  function updateSoundButtons() {
+    $('soundMenu').textContent = muted ? '🔇 Sound: Off' : '🔊 Sound: On';
+    $('soundHud').textContent = muted ? '🔇' : '🔊';
+  }
+  function toggleSound() {
+    muted = !muted;
+    store(STORAGE_MUTE, muted ? '1' : '0');
+    updateSoundButtons();
+    ensureAudio();
+    sfx.click();
+  }
+
+  /* ------------------------------------------------------------------
+     12. Input
+  ------------------------------------------------------------------ */
+  function pointerToX(e) {
+    const rect = canvas.getBoundingClientRect();
+    return ((e.clientX - rect.left) / rect.width) * W;
+  }
+  canvas.addEventListener('pointerdown', (e) => {
+    ensureAudio();
+    player.targetX = pointerToX(e);
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    player.targetX = pointerToX(e);
+  });
+
+  window.addEventListener('keydown', (e) => {
+    ensureAudio();
+    const k = e.key;
+    const inRound = game.state !== 'menu';
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') { keys.left = true; if (inRound) e.preventDefault(); }
+    else if (k === 'ArrowRight' || k === 'd' || k === 'D') { keys.right = true; if (inRound) e.preventDefault(); }
+    else if ((k === 'p' || k === 'P' || k === 'Escape') && !e.repeat) {
+      if (canPause()) togglePause();
+    }
+  });
+  window.addEventListener('keyup', (e) => {
+    const k = e.key;
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') keys.left = false;
+    else if (k === 'ArrowRight' || k === 'd' || k === 'D') keys.right = false;
+  });
+
+  // Auto-pause when the tab/window loses focus, and clear stuck keys
+  window.addEventListener('blur', () => { keys.left = keys.right = false; pauseGame(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pauseGame(); });
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 150));
+
+  // Buttons
+  $('btnStart').addEventListener('click', startGame);
+  $('btnPause').addEventListener('click', () => { ensureAudio(); sfx.click(); togglePause(); $('btnPause').blur(); });
+  $('btnResume').addEventListener('click', () => { sfx.click(); resumeGame(); });
+  $('btnRestart').addEventListener('click', () => { sfx.click(); startGame(); });
+  $('btnQuit').addEventListener('click', () => { sfx.click(); toMenu(); });
+  $('btnAgain').addEventListener('click', () => { sfx.click(); startGame(); });
+  $('btnMenu').addEventListener('click', () => { sfx.click(); toMenu(); });
+  $('soundMenu').addEventListener('click', toggleSound);
+  $('soundHud').addEventListener('click', () => { toggleSound(); $('soundHud').blur(); });
+
+  /* ------------------------------------------------------------------
+     13. Main loop
+  ------------------------------------------------------------------ */
+  let last = 0;
+  function frame(ts) {
+    // Clamp dt: keeps physics stable after tab switches and prevents tunnelling past the catcher
+    const dt = Math.min(0.033, Math.max(0, (ts - last) / 1000) || 0);
+    last = ts;
+    if (!game.paused) update(dt);
+    if (game.state !== 'menu') { draw(); updateHUD(); }
+    requestAnimationFrame(frame);
+  }
+
+  /* ------------------------------------------------------------------
+     14. Boot
+  ------------------------------------------------------------------ */
+  $('bestMenu').textContent = game.best;
+  updateSoundButtons();
+  updateHUD();
+  resize();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
